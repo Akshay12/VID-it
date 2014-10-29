@@ -9,19 +9,17 @@
         android:layout_height="wrap_content" android:background="#ffffff">
  
         <!--  Header Starts-->
-		<LinearLayout android:id="@+id/header"
+
+		<LinearLayout
+		    android:id="@+id/header"
 		    android:layout_width="fill_parent"
 		    android:layout_height="wrap_content"
-		    android:background="@layout/header_gradient"
-		    android:paddingTop="5dip"
-		    android:paddingBottom="5dip">
 		        
-		        <!-- Logo Start-->
-		        <ImageView android:src="@drawable/logo"
+		         <ImageView android:src="@drawable/logo"
 		            android:layout_width="wrap_content"
 		            android:layout_height="wrap_content"
-		            android:layout_marginLeft="10dip"/>
-	       		<!-- Logo Ends -->
+		            android:layout_gravity="center_horizontal"
+		            android:layout_marginBottom="20dip"/>
 
 		</LinearLayout>
 		<!--  Header Ends -->
@@ -32,23 +30,47 @@
 		    android:layout_height="90dip"
 		    android:background="@layout/footer_repeat"
 		    android:layout_alignParentBottom="true">
+
+            <Button
+                android:id="@+id/button1"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="0.33"
+                android:text="Terms of Service" />
+
+            <Button
+                android:id="@+id/button2"
+                android:layout_width="0dp"
+                android:layout_weight="0.33"
+                android:layout_height="wrap_content"
+                android:text="New Member?" />
+
+            <Button
+                android:id="@+id/button3"
+                android:layout_width="0dp"
+                android:layout_weight="0.33"
+                android:layout_height="wrap_content"
+                android:text="About Us" />
+
 		</LinearLayout>
                    <!-- Place footer next to header to set z-index property to minus value -->
         <!-- Footer Ends -->
  
         <!-- Login Form -->
+
         <LinearLayout
-          xmlns:android="http://schemas.android.com/apk/res/android"
-          android:orientation="vertical"
-          android:layout_width="match_parent"
-          android:layout_height="wrap_content"
-          android:padding="10dip"
-          android:layout_below="@id/header">
+            xmlns:android="http://schemas.android.com/apk/res/android"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/header"
+            android:orientation="vertical"
+            android:padding="10dip" >
+
 	          <!--  Email Label -->
 	          <TextView android:layout_width="fill_parent"
 	                android:layout_height="wrap_content"
 	                android:textColor="#372c24"
-	                android:text="Email"/>
+	                android:text="Enter Email"/>
 	          <EditText android:layout_width="fill_parent"
 	                android:layout_height="wrap_content"
 	                android:layout_marginTop="5dip"
@@ -58,28 +80,22 @@
 	          <TextView android:layout_width="fill_parent"
 	                android:layout_height="wrap_content"
 	                android:textColor="#372c24"
-	                android:text="Password"/>
+	                android:text="Enter Password"/>
 	          <EditText android:layout_width="fill_parent"
 	                android:layout_height="wrap_content"
 	                android:layout_marginTop="5dip"
 	                android:singleLine="true"
 	                android:password="true"/>
 	          <!-- Login button -->
-	          <Button android:id="@+id/btnLogin"
-	                android:layout_width="fill_parent"
-	                android:layout_height="wrap_content"
-	                android:layout_marginTop="10dip"
-	                android:text="Login"/>
+
+	          <Button
+	              android:id="@+id/btnLogin"
+	              android:layout_width="fill_parent"
+	              android:layout_height="match_parent"
+	              android:layout_marginTop="30dip"
+	              android:text="Login" />
+
 	          <!-- Link to Registration Screen -->
-	          <TextView android:id="@+id/link_to_register"
-	                android:layout_width="fill_parent"
-	                android:layout_height="wrap_content"
-	                android:layout_marginTop="40dip"
-	                android:layout_marginBottom="40dip"
-	                android:text="New User? Register here!"
-	                android:gravity="center"
-	                android:textSize="20dip"
-	                android:textColor="#0b84aa"/>
  		</LinearLayout>        
         <!-- Login Form Ends -->
  
