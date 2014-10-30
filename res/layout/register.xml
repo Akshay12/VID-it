@@ -5,12 +5,15 @@
         android:layout_height="wrap_content" android:background="#fff">
  
         <!-- Registration Form -->
+
         <LinearLayout
-          android:orientation="vertical"
-          android:layout_width="match_parent"
-          android:layout_height="wrap_content"
-          android:padding="5dip"
-          android:layout_below="@id/header">
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:layout_below="@id/header"
+            android:orientation="vertical"
+            android:padding="5dip" >
+
           <!-- Full Name Label -->
           <TextView android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
@@ -69,5 +72,6 @@
                 android:layout_marginBottom="5dip"
                 android:src="@drawable/logo" />
         </LinearLayout>
+         
 
   </RelativeLayout>
