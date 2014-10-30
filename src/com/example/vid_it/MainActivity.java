@@ -4,7 +4,8 @@ import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
-import android.widget.TextView;
+import android.view.View.OnClickListener;
+import android.widget.Button;
  
 public class MainActivity extends Activity {
     @Override
@@ -13,10 +14,11 @@ public class MainActivity extends Activity {
         // setting default screen to login.xml
         setContentView(R.layout.login);
  
-        TextView registerScreen = (TextView) findViewById(R.id.link_to_register);
+       // Button loginNow = (Button) findViewById(R.id.btnLogin);
+        Button registerScreen = (Button) findViewById(R.id.link_to_register);
  
         // Listening to register new account link
-        registerScreen.setOnClickListener(new View.OnClickListener() {
+        registerScreen.setOnClickListener(new OnClickListener() {
  
             public void onClick(View v) {
                 // Switching to Register screen
