@@ -35,6 +35,16 @@
         <activity android:name=".TOSActivity"
                   android:label="Terms of Service">
         </activity>
+
+	<!-- Accessing Google Drive -->
+	<activity
+            android:name=".DriveLog"
+            android:label="Test Drive" >
+		</activity>
+
+        <meta-data
+            android:name="com.google.android.gms.version"
+            android:value="5089000"/>
     </application>
     
 </manifest>
