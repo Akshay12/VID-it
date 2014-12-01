@@ -5,8 +5,8 @@
     android:versionName="1.0" >
 
     <uses-sdk
-        android:minSdkVersion="16"
-        android:targetSdkVersion="18" />
+        android:minSdkVersion="14"
+        android:targetSdkVersion="17" />
     
     <!-- Accessing camera hardware -->
     <uses-feature android:name="android.hardware.camera" />
@@ -32,8 +32,8 @@
                   android:label="Camera">
         </activity>
         
-        <activity android:name=".TOSActivity"
-                  android:label="Terms of Service">
+        <activity android:name=".AboutActivity"
+                  android:label="About Us">
         </activity>
     </application>
     

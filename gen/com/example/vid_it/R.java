@@ -26,38 +26,34 @@ public final class R {
         public static final int logo=0x7f020001;
     }
     public static final class id {
+        public static final int Continue=0x7f08000c;
+        public static final int PreviewText=0x7f08000d;
         public static final int RelativeLayout1=0x7f080000;
+        public static final int TakeAgain=0x7f08000b;
         public static final int TextView1=0x7f080004;
-        public static final int about_us=0x7f08000c;
-        public static final int action_settings=0x7f080016;
-        public static final int agree=0x7f080014;
+        public static final int about_link=0x7f08000a;
+        public static final int action_settings=0x7f080013;
+        public static final int agree=0x7f080011;
         public static final int btnCapturePicture=0x7f080002;
-        public static final int btnLogin=0x7f080008;
         public static final int btnRecordVideo=0x7f080003;
-        public static final int btnRegister=0x7f080010;
-        public static final int disagree=0x7f080015;
-        public static final int footer=0x7f080009;
+        public static final int disagree=0x7f080012;
         public static final int header=0x7f080007;
         public static final int imagery=0x7f080001;
         public static final int imgPreview=0x7f080006;
-        public static final int link_to_register=0x7f08000b;
-        public static final int reg_email=0x7f08000e;
-        public static final int reg_fullname=0x7f08000d;
-        public static final int reg_password=0x7f08000f;
-        public static final int scroll=0x7f080013;
-        public static final int textView1=0x7f080011;
-        public static final int textView2=0x7f080012;
-        public static final int tos=0x7f08000a;
+        public static final int photo=0x7f080008;
+        public static final int scroll=0x7f080010;
+        public static final int textView1=0x7f08000e;
+        public static final int textView2=0x7f08000f;
+        public static final int video=0x7f080009;
         public static final int videoPreview=0x7f080005;
     }
     public static final class layout {
         public static final int about=0x7f030000;
         public static final int camera=0x7f030001;
-        public static final int footer_repeat=0x7f030002;
-        public static final int header_gradient=0x7f030003;
-        public static final int login=0x7f030004;
-        public static final int register=0x7f030005;
-        public static final int tos=0x7f030006;
+        public static final int header_gradient=0x7f030002;
+        public static final int login=0x7f030003;
+        public static final int preview=0x7f030004;
+        public static final int tos=0x7f030005;
     }
     public static final class menu {
         public static final int main=0x7f070000;
