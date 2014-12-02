@@ -30,47 +30,47 @@ public class PhotoActivity extends Activity {
 	
 	// directory name to store captured images and videos
 	private static final String STORAGE_DIRECTORY = "Tester";
-    
+
 	private ImageView imgPreview;
 	private Button btnCapturePicture;
 	private Uri file_store; // file url to store image/video
-    
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.camera);
-        
+
 		imgPreview = (ImageView) findViewById(R.id.imgPreview);
 		btnCapturePicture = (Button) findViewById(R.id.btnCapturePicture);
-        
+
 		/*
 		 * Capture image button click event
 		 */
 		btnCapturePicture.setOnClickListener(new View.OnClickListener() {
-            
+
 			@Override
 			public void onClick(View v) {
 				// capture picture
 				captureImage();
 			}
 		});
-        
+
 		//  camera availability??
 		if (!isDeviceSupportCamera()) {
 			Toast.makeText(getApplicationContext(),
-                           "Hmm... Seems like your phone does not have a camera, get a better phone...",
-                           Toast.LENGTH_LONG).show();
+					"Hmm... Seems like your phone does not have a camera, get a better phone...",
+					Toast.LENGTH_LONG).show();
 			// close that app!
 			finish();
 		}
 	};
-    
+
 	/**
 	 * Checking device has camera hardware or not
 	 * */
 	private boolean isDeviceSupportCamera() {
 		if (getApplicationContext().getPackageManager().hasSystemFeature(
-                                                                         PackageManager.FEATURE_CAMERA)) {
+				PackageManager.FEATURE_CAMERA)) {
 			// CAMERA GO!
 			return true;
 		} else {
@@ -78,60 +78,60 @@ public class PhotoActivity extends Activity {
 			return false;
 		}
 	}
-    
+
 	/*
 	 * ok got image now try to store it
 	 */
 	private void captureImage() {
 		Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-        
+
 		file_store = getOutputMediaFileUri(MEDIA_TYPE_IMAGE);
-        
+
 		intent.putExtra(MediaStore.EXTRA_OUTPUT, file_store);
-        
+
 		// INTENT!!!
 		startActivityForResult(intent, CAMERA_CAPTURE_IMAGE_REQUEST_CODE);
 	}
-    
+
 	/**
-	 * ------------ Helper Methods ----------------------
+	 * ------------ Helper Methods ---------------------- 
 	 * */
-    
+
 	/*
 	 * Creating file url to store image/video
 	 */
 	public Uri getOutputMediaFileUri(int type) {
 		return Uri.fromFile(getOutputMediaFile(type));
 	}
-    
+
 	private static File getOutputMediaFile(int type) {
-        
+
 		// External sdcard location
 		File mediaStorageDir = new File(
-                                        Environment
-                                        .getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES),
-                                        STORAGE_DIRECTORY);
-        
+				Environment
+				.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES),
+				STORAGE_DIRECTORY);
+
 		// Create the storage directory if it does not exist
 		if (!mediaStorageDir.exists()) {
 			if (!mediaStorageDir.mkdirs()) {
 				Log.d(STORAGE_DIRECTORY, "Oops! Failed create "
-                      + STORAGE_DIRECTORY + " directory");
+						+ STORAGE_DIRECTORY + " directory");
 				return null;
 			}
 		}
-        
+
 		// Create a media file name
 		String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss",
-                                                Locale.getDefault()).format(new Date());
+				Locale.getDefault()).format(new Date());
 		File mediaFile;
 		if (type == MEDIA_TYPE_IMAGE) {
 			mediaFile = new File(mediaStorageDir.getPath() + File.separator
-                                 + "IMG_" + timeStamp + ".jpg");
+					+ "IMG_" + timeStamp + ".jpg");
 		} else {
 			return null;
 		}
-        
+
 		return mediaFile;
 	}
 }
