@@ -19,7 +19,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="10dp"
             android:layout_weight="0.49"
-            android:text="Take Photo" />
+            android:text="Google Drive" />
 
         <!-- Record video button -->
 
@@ -29,7 +29,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="0.49"
-            android:text="Continue" />
+            android:text="Facebook" />
 
     </LinearLayout>
     

@@ -1,12 +1,20 @@
 package com.example.vid_it;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
+import java.util.concurrent.CountDownLatch;
 
+import android.R.string;
 import android.app.Activity;
 import android.content.Intent;
+import android.content.IntentSender;
+import android.content.IntentSender.SendIntentException;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -14,53 +22,102 @@ import android.graphics.Matrix;
 import android.media.MediaPlayer;
 import android.media.MediaPlayer.OnPreparedListener;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.Toast;
 import android.widget.VideoView;
-public class VideoActivity extends Activity {
-	
+
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.GooglePlayServicesUtil;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.drive.*;
+import com.google.android.gms.drive.DriveApi.ContentsResult;
+import com.google.android.gms.drive.DriveFolder.DriveFileResult;
+import com.google.android.gms.common.api.GoogleApiClient.ConnectionCallbacks;
+import com.google.android.gms.common.api.GoogleApiClient.OnConnectionFailedListener ;
+import com.google.android.gms.common.api.ResultCallback;
+
+
+
+
+
+public class VideoActivity extends Activity implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
 	// Activity request codes
 	private static final int CAMERA_CAPTURE_IMAGE_REQUEST_CODE = 100;
 	private static final int CAMERA_CAPTURE_VIDEO_REQUEST_CODE = 200;
 	public static final int MEDIA_TYPE_IMAGE = 1;
 	public static final int MEDIA_TYPE_VIDEO = 2;
 
+	private GoogleApiClient mGoogleApiClient;
+	private ContentsResult result;
+	private static final String TAG = "avideo activity";
+	private static final int REQUEST_CODE_RESOLUTION = 3;
+	private static final int REQUEST_CODE_CREATOR = 2;
+	private boolean mIsInResolution = false;
+	private final String KEY_IN_RESOLUTION = "is_in_resolution";
+
 	// directory name to store captured images and videos
 	private static final String STORAGE_DIRECTORY = "Tester";
 
 	private Uri file_store; // file url to store image/video
+	
+	public Bitmap mBitmapToSave;
 
 	private ImageView imgPreview;
 	private VideoView videoPreview;
-	private Button btnCapturePicture, btnRecordVideo;
+	private Button googleDrive, facebookPublish;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.video_preview);
-
 		imgPreview = (ImageView) findViewById(R.id.imgPreview);
 		videoPreview = (VideoView) findViewById(R.id.videoPreview);
+
 		//btnCapturePicture = (Button) findViewById(R.id.btnCapturePicture);
-		btnRecordVideo = (Button) findViewById(R.id.btnRecordVideo);
+		googleDrive = (Button) findViewById(R.id.btnRecordVideo);
+		facebookPublish = (Button) findViewById(R.id.continueButton);
+
+		mGoogleApiClient = new GoogleApiClient.Builder(this)
+		.addApi(Drive.API).addScope(Drive.SCOPE_FILE)
+		.addConnectionCallbacks(this)
+		.addOnConnectionFailedListener( this).build();
 
 		/*
 		 * Capture image button click event
 		 */
-		btnRecordVideo.setOnClickListener(new View.OnClickListener() {
+		googleDrive.setOnClickListener(new View.OnClickListener() {
 
 			@Override
 			public void onClick(View v) {
 				// record a video
-				recordVideo();
+				mGoogleApiClient.connect();
+
+
 			}
 		});
+
+
+
+		facebookPublish.setOnClickListener(new View.OnClickListener() {
+
+			@Override
+			public void onClick(View v) {
+				Intent i = new Intent(getApplicationContext(), PublishActivity.class);
+				//	i.putExtra("BitmapImage", bitmap_to_send);
+				startActivity(i);
+			}
+		});
+
 		//  camera availability??
 		if (!isDeviceSupportCamera()) {
 			Toast.makeText(getApplicationContext(),
@@ -69,7 +126,35 @@ public class VideoActivity extends Activity {
 			// close that app!
 			finish();
 		}
+		if (savedInstanceState != null) {
+			mIsInResolution = savedInstanceState.getBoolean(KEY_IN_RESOLUTION, false);
+		}
+
+		try {
+			InputStream inputStream = getAssets().open("some_image.jpg");
+			mBitmapToSave = BitmapFactory.decodeStream(inputStream);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
+
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		super.onCreateOptionsMenu(menu);
+		MenuInflater inflater = getMenuInflater();
+		inflater.inflate(R.menu.other_menu, menu);
+		return true;
+	}
+
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		switch (item.getItemId()) {
+		case R.id.record_video:
+			recordVideo();
+			return true;
+		}
+		return false;
+	} 
 
 	/**
 	 * Checking device has camera hardware or not
@@ -107,6 +192,7 @@ public class VideoActivity extends Activity {
 		// save file url in bundle ( some odd reason
 		// changes
 		outState.putParcelable("file_uri", file_store);
+		//TODO: save file here
 	}
 
 	@Override
@@ -129,7 +215,7 @@ public class VideoActivity extends Activity {
 		intent.putExtra(MediaStore.EXTRA_VIDEO_QUALITY, 1);
 
 		intent.putExtra(MediaStore.EXTRA_OUTPUT, file_store); 
-															
+
 
 		//INTENT@!!
 		startActivityForResult(intent, CAMERA_CAPTURE_VIDEO_REQUEST_CODE);
@@ -174,7 +260,21 @@ public class VideoActivity extends Activity {
 						.show();
 			}
 		}
+		switch (requestCode) {
+		case REQUEST_CODE_RESOLUTION:
+			retryConnecting();
+			break;
+		}
 	}
+
+	private void retryConnecting() {
+		mIsInResolution = false;
+		if (!mGoogleApiClient.isConnecting()) {
+			Log.d("test", "connect()");
+			mGoogleApiClient.connect();
+		}
+	}
+
 
 	//Preview that IMAGE!
 	private void previewCapturedImage() {
@@ -187,17 +287,17 @@ public class VideoActivity extends Activity {
 			Matrix mat = new Matrix();
 			mat.postRotate(90);
 			mat.postScale((float) 1.7, (float) 1.55);
-			
+
 			// bimatp factory to store for compression purposes TODO:!!!!
 			BitmapFactory.Options options = new BitmapFactory.Options();
 
 			// downsizing image as it throws OutOfMemory Exception for larger TODO:!! IF TOO LARGE COMPRESS BEFORE BIT
 			// images
 			options.inSampleSize = 8;
-			
+
 			Bitmap _bitmap = BitmapFactory.decodeFile(file_store.getPath(), options);
 			Bitmap bitmap = Bitmap.createBitmap(_bitmap, 0, 0, _bitmap.getWidth(), _bitmap.getHeight(), mat, true);
-			
+
 			imgPreview.setImageBitmap(bitmap);
 		} catch (NullPointerException e) {
 			e.printStackTrace();
@@ -211,25 +311,25 @@ public class VideoActivity extends Activity {
 		try {
 			// hide image preview
 			imgPreview.setVisibility(View.GONE);// Did not know that...
-			
+
 			videoPreview.setVisibility(View.VISIBLE);
 			videoPreview.setVideoPath(file_store.getPath());
-			
+
 			videoPreview.setOnPreparedListener (new OnPreparedListener() {                    
-			    @Override
-			    public void onPrepared(MediaPlayer mp) {
-			        mp.setLooping(true);
-			    }
+				@Override
+				public void onPrepared(MediaPlayer mp) {
+					mp.setLooping(true);
+				}
 			});
-			
+
 			// start playing
 			videoPreview.start();
-			
+
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 	}
-	
+
 	/**
 	 * ------------ Helper Methods ---------------------- 
 	 * */
@@ -249,7 +349,7 @@ public class VideoActivity extends Activity {
 		// External sdcard location
 		File mediaStorageDir = new File(
 				Environment
-						.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES),
+				.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES),
 				STORAGE_DIRECTORY);
 
 		// Create the storage directory if it does not exist
@@ -277,4 +377,182 @@ public class VideoActivity extends Activity {
 
 		return mediaFile;
 	}
+
+	@Override
+	protected void onPause() {
+		if (mGoogleApiClient != null) {
+			mGoogleApiClient.disconnect();
+		}
+		super.onPause();
+	}
+
+
+	@Override
+	public void onConnectionSuspended(int cause) {
+		Log.i(TAG, "GoogleApiClient connection suspended");
+	}
+
+	@Override
+	public void onConnected(Bundle connectionHint) {
+		Log.i(TAG, "API client connected.");
+
+		//showToast("Inside Connected");
+		Drive.DriveApi.newContents(mGoogleApiClient).setResultCallback(
+					new ResultCallback<DriveApi.ContentsResult>() {
+						@Override
+						public void onResult(DriveApi.ContentsResult trash) {
+							Log.i(TAG, "After first await().");
+							//showToast(""+result.getContents().toString());
+							OutputStream outputStream = trash.getContents().getOutputStream();
+							ByteArrayOutputStream bitmapStream = new ByteArrayOutputStream();
+							//java.io.File fileContent = new java.io.File(fileUri.getPath());
+
+
+							MetadataChangeSet changeSet = new MetadataChangeSet.Builder()
+							.setTitle("New file")
+							.setMimeType("video/MP4")
+							.setStarred(true).build();
+							//showToast("meta data created");
+							IntentSender intentSender = Drive.DriveApi.newCreateFileActivityBuilder()
+																	.setInitialMetadata(changeSet)
+																	.setInitialContents(trash.getContents())
+																	.build(mGoogleApiClient);
+							try {
+								startIntentSenderForResult(intentSender, REQUEST_CODE_CREATOR, null, 0 ,0, 0);
+							}
+							catch(SendIntentException e) {
+								Log.i(TAG, "Failed to Lauch this app");
+							}
+							
+							//showToast("await() complete");
+							if (!trash.getStatus().isSuccess()) {
+								//   showToast("Error while trying to create the file");
+								return;
+							}
+							// showToast("Created a file: " + dfres.getDriveFile().getDriveId());
+						}
+					});
+
+//		Log.i(TAG, "After first await().");
+//		//showToast(""+result.getContents().toString());
+//		OutputStream outputStream = result.getContents().getOutputStream();
+//		ByteArrayOutputStream bitmapStream = new ByteArrayOutputStream();
+//		//java.io.File fileContent = new java.io.File(fileUri.getPath());
+//
+//
+//		MetadataChangeSet changeSet = new MetadataChangeSet.Builder()
+//		.setTitle("New file")
+//		.setMimeType("audio/MP3")
+//		.setStarred(true).build();
+//		//showToast("meta data created");
+//		DriveFileResult dfres= Drive.DriveApi.getRootFolder(mGoogleApiClient)
+//				.createFile(mGoogleApiClient, changeSet, result.getContents())
+//				.await();
+//		//showToast("await() complete");
+//		if (!result.getStatus().isSuccess()) {
+//			//   showToast("Error while trying to create the file");
+//			return;
+//		}
+//		// showToast("Created a file: " + dfres.getDriveFile().getDriveId());
+	}
+
+
+
+	private Object getGoogleApiClient() {
+		// TODO Auto-generated method stub
+		return mGoogleApiClient;
+	}
+
+	@Override
+	public void onConnectionFailed(ConnectionResult result) {
+		Log.i(TAG, "GoogleApiClient connection failed: " + result.toString());
+		if (!result.hasResolution()) {
+			// Show a localized error dialog.
+			GooglePlayServicesUtil.getErrorDialog(
+					result.getErrorCode(), this, 0
+					).show();
+			return;
+		}
+		// If there is an existing resolution error being displayed or a resolution
+		// activity has started before, do nothing and wait for resolution
+		// progress to be completed.
+		if (mIsInResolution) {
+			return;
+		}
+		mIsInResolution = true;
+		try {
+			result.startResolutionForResult(this, REQUEST_CODE_RESOLUTION);
+		} catch (SendIntentException e) {
+			Log.e(TAG, "Exception while starting resolution activity", e);
+			retryConnecting();
+		}
+	}
+
+	/**
+	 * Receives the new file's contents and executes the editor AsyncTask
+	 */
+	private ResultCallback<DriveApi.ContentsResult> mSaveFileCallback = new ResultCallback<DriveApi.ContentsResult>() {
+		@Override
+		public void onResult(DriveApi.ContentsResult contentsResult) {
+			EditFileAsyncTask editFileAsyncTask = new EditFileAsyncTask();
+			editFileAsyncTask.execute(contentsResult);
+		}
+	};
+
+	private void showMessage( String message){
+		Log.i(TAG,message);
+		Toast.makeText(this,  message, Toast.LENGTH_LONG).show();
+	}
+
+	private class EditFileAsyncTask extends AsyncTask<DriveApi.ContentsResult, Void, Boolean> {
+
+		@Override
+		protected Boolean doInBackground(DriveApi.ContentsResult... params) {
+			DriveApi.ContentsResult contentsResult = params[0];
+			if (!contentsResult.getStatus().isSuccess()) {
+				showMessage("Failed to create new contents.");
+				return false;
+			}
+			showMessage("New contents created.");
+			OutputStream outputStream = contentsResult.getContents().getOutputStream();
+			ByteArrayOutputStream bitmapStream = new ByteArrayOutputStream();
+			mBitmapToSave.compress(Bitmap.CompressFormat.PNG, 100, bitmapStream);
+			try {
+				outputStream.write(bitmapStream.toByteArray());
+			} catch (IOException e) {
+				showMessage("Unable to write file contents.");
+				e.printStackTrace();
+			}
+
+			MetadataChangeSet metadataChangeSet = new MetadataChangeSet.Builder()
+			.setMimeType("image/jpeg")
+			.setTitle("some_image.jpg")
+			.build();
+
+			IntentSender intentSender = Drive.DriveApi
+					.newCreateFileActivityBuilder()
+					.setInitialMetadata(metadataChangeSet)
+					.setInitialContents(contentsResult.getContents())
+					.build(mGoogleApiClient);
+
+			try {
+				startIntentSenderForResult(intentSender, REQUEST_CODE_CREATOR, null, 0, 0, 0);
+			} catch (SendIntentException e) {
+				showMessage("Failed to launch file chooser.");
+				e.printStackTrace();
+			}
+			return true;
+		}
+
+		@Override
+		protected void onPostExecute(Boolean result) {
+			if (!result) {
+				showMessage("Error while editing contents");
+				return;
+			}
+			showMessage("Successfully edited contents");
+		}
+	}
 }
+
+

@@ -16,7 +16,8 @@
     <application android:allowBackup="true" android:icon="@drawable/ic_launcher" android:label="@string/app_name">
         
         <activity android:name=".MainActivity"
-                  android:label="@string/app_name" >
+                  android:label="@string/app_name" 
+                  android:screenOrientation="portrait">
             
                 <intent-filter>
                      <action android:name="android.intent.action.MAIN" />
@@ -24,29 +25,33 @@
                 </intent-filter>
         </activity>
  
-        <activity android:name=".RegisterActivity"
-                  android:label="Register New Account">
-        </activity>
-         <!--  Entry for AndroidCamera.class -->
         <activity android:name=".AndroidCamera"
-                  android:label="Camera">
+                  android:label="Camera"
+                  android:screenOrientation="portrait">
         </activity>
         
         <activity android:name=".PhotoActivity"
-                  android:label="Photo Preview">
+                  android:label="Photo Preview"
+                  android:screenOrientation="portrait">
         </activity>
         
         <activity android:name=".VideoActivity"
-                  android:label="Video Activity">
+                  android:label="Video Activity"
+                  android:screenOrientation="portrait">
         </activity>
         
         <activity android:name=".PublishActivity"
-                  android:label="Publish">
+                  android:label="Publish"
+                  android:screenOrientation="portrait">
         </activity>
         
         <activity android:name=".AboutActivity"
-                  android:label="About Us">
+                  android:label="About Us"
+                  android:screenOrientation="portrait">
         </activity>
+        
+        <meta-data android:name="com.google.android.gms.version"
+            	   android:value="6171000"/>
     </application>
     
 </manifest>
