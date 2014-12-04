@@ -1,7 +1,0 @@
-INDEX VERSION 1.127+/v/filer4b/v38q001/nick356/Documents/Mobile_App/.metadata/.plugins/org.eclipse.jdt.core
-4092037283.index
-636726467.index
-1415693123.index
-3716824351.index
-2273963634.index
-409902163.index

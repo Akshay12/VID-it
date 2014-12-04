@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:orientation="horizontal" 
+    android:background="#fff" 
+    tools:context=".PhotoActivity" >
+	
+    <LinearLayout 
+        android:id="@+id/imagery"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center" >
+
+        <Button
+            android:id="@+id/btnRecordVideo"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:layout_weight="0.49"
+            android:text="Google Drive" />
+
+        <!-- Record video button -->
+
+        <Button
+            android:layout_marginTop="10dp"
+            android:id="@+id/continueButton"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="0.49"
+            android:text="Facebook" />
+
+    </LinearLayout>
+    
+     <RelativeLayout
+         android:layout_width="wrap_content"
+         android:layout_height="wrap_content"
+         android:layout_below="@+id/imagery"
+         android:layout_centerHorizontal="true"
+         android:gravity="center" >
+
+         <TextView
+            android:id="@+id/PreviewText"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="15dp"
+            android:layout_marginBottom="15dp"
+            android:gravity="center"
+            android:text="Take a Look"
+            android:textSize="15dp"
+            android:color="#000" />
+        
+        <VideoView
+            android:layout_below="@+id/PreviewText"
+            android:id="@+id/videoPreview"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:layout_gravity="center"
+            android:layout_centerHorizontal="true"
+            android:layout_marginBottom="10dp"
+            android:visibility="gone" />
+         
+        <ImageView
+            android:id="@+id/imgPreview"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/PreviewText"
+            android:layout_gravity="center"
+            android:layout_centerHorizontal="true"
+            android:scaleType="center"
+            android:visibility="visible"
+            android:adjustViewBounds="true" />
+    </RelativeLayout>
+    
+
+</RelativeLayout>
